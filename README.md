@@ -5,10 +5,9 @@ This PHP script will export your iCloud based groups and sheets to disk, while k
 
 ## Setup
 
-You will need to download and add https://github.com/rodneyrehm/CFPropertyList to the folder that contains ulyssesToFiles.php
+<code>composer install rodneyrehm/plist</code>
 
 ## Running
 
-In terminal, <code>cd</code> into the directory containing the script and run it. You should then see a folder called "Root" created which contains your Ulysses groups and sheets. Then, you can commit them to a respository, backup, etc.
+In terminal, <code>cd</code> into the directory containing the script and run it. You should then see a folder called "Export" created which contains your Ulysses groups and sheets. Then, you can commit them to a respository, backup, etc.
 
-Please note: Currently, this only exports notes that start with a heading 2.
