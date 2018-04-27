@@ -6,12 +6,20 @@ namespace CFPropertyList;
 error_reporting(E_ALL ^ E_NOTICE);
 ini_set( 'display_errors', 'on' );
 
-require_once(__DIR__.'/CFPropertyList/classes/CFPropertyList/CFPropertyList.php');
+require './vendor/autoload.php';
 
 $structure = array();
 
-$structure = parseFolder(getenv('HOME').'/Library/Containers/com.soulmen.ulysses3/Data/Documents/Library/Groups-ulgroup/');
-strucToDisk('./', $structure);
+if (file_exists('Export'))
+{
+	`rm -r "Export"`;
+}
+
+mkdir('Export');
+
+$structure = parseFolder(getenv('HOME').'/Library/Mobile Documents/X5AZV975AG~com~soulmen~ulysses3/Documents/Library');
+strucToDisk('./Export', $structure);
+
 
 function parseFolder($path)
 {
@@ -46,20 +54,36 @@ function parseFolder($path)
 			{
 				$xmlFile = file_get_contents($path.'/'.$sheet.'/Content.xml');
 				$lines = explode("\n", $xmlFile);
+		
+				$title = '';
 				
 				foreach ($lines AS $l)
 				{
-					if (preg_match('!<tag kind="heading2"!', $l))
+    				if (preg_match('!<tag kind="heading1"!', $l))
 					{
-						$title = str_replace('## ', '', strip_tags($l));
+						$title = preg_replace('!# ?!', '', strip_tags($l));
 						break;
 					}
+					else if (preg_match('!<tag kind="heading2"!', $l))
+					{
+						$title = preg_replace('!## ?!', '', strip_tags($l));
+						break;
+					}
+				}
+				
+				$fileContents = file_get_contents($path.'/'.$sheet.'/Text.txt');
+				
+				if (!$title)
+				{
+    				$firstLine = explode("\n", $fileContents)[0];
+    				
+    				$title = strlen($firstLine) > 25 ? substr($firstLine, 0, 25).'...' : $firstLine;
 				}
 				
 				$children[] = array(
 				   'type' => 'sheet',
 				   'title' => $title,
-				   'text' => file_get_contents($path.'/'.$sheet.'/Text.txt'),
+				   'text' => $fileContents,
 				);
 			}
 		}
@@ -79,13 +103,16 @@ function strucToDisk($path, $struc)
 	{
 		$path .= '/'.$key;
 		
-		if (file_exists($path))
+		if ($key != '')
 		{
-			`rm -r "$path"`;
+    		if (file_exists($path))
+    		{
+    			`rm -r "$path"`;
+    		}
+    		
+    		mkdir($path);
 		}
-		
-		mkdir($path);
-		
+
 		if ($val['type'] == 'group')
 		{
 			foreach ($val['children'] AS $child)
@@ -105,6 +132,5 @@ function strucToDisk($path, $struc)
 		}
 	}
 }
-
 
 ?>
