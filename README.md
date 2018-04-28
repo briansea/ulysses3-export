@@ -5,7 +5,7 @@ This PHP script will export your iCloud based groups and sheets to disk, while k
 
 ## Setup
 
-<code>composer install rodneyrehm/plist</code>
+<code>composer install</code>
 
 ## Running
 
