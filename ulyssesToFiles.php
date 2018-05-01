@@ -35,7 +35,8 @@ function parseFolder($path)
 		{
 			if (preg_match('!ulgroup!', $group))
 			{
-				$children[] = parseFolder($path.'/'.$group);
+				if (file_exists($path.'/'.$group))
+					$children[] = parseFolder($path.'/'.$group);
 			}
 		}
 		
@@ -52,6 +53,7 @@ function parseFolder($path)
 		{
 			foreach ($sheets AS $sheet)
 			{
+				if (!file_exists($path.'/'.$sheet)) continue;
 				$xmlFile = file_get_contents($path.'/'.$sheet.'/Content.xml');
 				$lines = explode("\n", $xmlFile);
 		
@@ -71,6 +73,7 @@ function parseFolder($path)
 					}
 				}
 				
+				if (!file_exists($path.'/'.$sheet)) continue;
 				$fileContents = file_get_contents($path.'/'.$sheet.'/Text.txt');
 				
 				if (!$title)
@@ -126,11 +129,22 @@ function strucToDisk($path, $struc)
 			{
 				if ($child['type'] == 'sheet' && $child['title'])
 				{
-					file_put_contents($path.'/'.$child['title'].'.txt', $child['text']);
+					file_put_contents($path.'/'.filter_filename($child['title']).'.txt', $child['text']);
 				}
 			}
 		}
 	}
+}
+
+// from: https://stackoverflow.com/a/2021729/28290
+function filter_filename($file) {
+	// Remove anything which isn't a word, whitespace, number
+	// or any of the following caracters -_~,;[]().
+	$file = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '-', $file);
+	// Remove any runs of periods or hyphens
+	$file = mb_ereg_replace("([\.-]{2,})", '', $file);
+
+	return $file;
 }
 
 ?>
